@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>My first Three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<script src="http://threejs.org/build/three.min.js"></script>
+		<script src="http://threejs.org/examples/js/effects/VREffect.js"></script>
+		<script src="http://threejs.org/examples/js/controls/VRControls.js"></script>
+		<script src="js/makers.js"></script>
+		<script src="js/controls.js"></script>
+		
+		<script src="js/ShadersNew.js"></script>
+		<script src="js/Toyz.js"></script>
+		<script src="js/Vector.js"></script>
+		<script src="js/Segment.js"></script>
+		<script src="js/Face.js"></script>
+		<script src="js/Figure.js"></script> 
+		<script src="js/Ncube.js"></script>
+		<script src="js/Slider.js"></script>
+		
+		<script src="js/TestGeom.js"></script>
+		
+		<script>
+			var SCALE = 1.0;
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera(
+				75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setClearColor( 0x000000 );
+
+			if (navigator.getVRDevices === undefined) {
+				document.body.innerHTML = "Your browser does not support WebVR";
+				document.body.classList.add('error');
+			}
+
+			var vrEffect = new THREE.VREffect( renderer, null);
+			var vrControls = new THREE.VRControls(camera);
+
+			document.body.appendChild(renderer.domElement);
+
+			scene.add(new THREE.AxisHelper(1.25 * SCALE));
+			
+			var toy = new FunkyTorus().create();
+			
+			scene.add( toy.mesh );
+			toy.mesh.position.z = -2.0;
+
+		//	camera.position.z = 8;
+
+			var move_vector = new THREE.Vector3(0, 0, 0);
+
+			document.onkeypress = function(event) {
+				press(event.key, vrEffect);
+			}
+
+			document.onkeydown = function(event) {
+				down(event.key, move_vector);
+			}
+
+			document.onkeyup = function(event) {
+				up(event.key, move_vector);
+			}
+
+			function nextframe() {
+				requestAnimationFrame(nextframe);
+				//move(camera, velocity)
+			
+				render();
+			}
+
+			function render() {
+				move_vector.setLength(SCALE / 6.0);
+				camera.position.add(move_vector);
+				vrControls.update();
+				
+				toy.mesh.rotation.z += 0.0005;
+				toy.mesh.rotation.x += 0.0035;
+				toy.mesh.rotation.y += 0.0002;
+				toy.shaderMaterial.uniforms.time.value += 0.0025;
+
+				vrEffect.render(scene, camera);
+			}
+			nextframe();
+
+		</script>
+	</body>
+</html>
